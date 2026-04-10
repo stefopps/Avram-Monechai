@@ -417,6 +417,64 @@
   }
   .rabbi-note strong { color: var(--gold); font-style: normal; }
 
+  /* LEAD CAPTURE */
+  #lead-box {
+    display: none;
+    max-width: 760px;
+    margin: 24px auto 40px;
+    padding: 28px;
+    border: 1px solid #2a2a2a;
+    background: rgba(255,255,255,0.03);
+  }
+  #lead-box.lead-visible { display: block; }
+  #lead-box h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.35rem;
+    letter-spacing: 0.08em;
+    color: var(--cream);
+    margin-bottom: 10px;
+  }
+  #lead-box p {
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  #lead-box .lead-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: stretch;
+  }
+  #lead-box input[type=email] {
+    flex: 1;
+    min-width: 200px;
+    background: #111;
+    border: 1px solid #333;
+    color: var(--cream);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    padding: 14px 16px;
+    outline: none;
+  }
+  #lead-box input[type=email]:focus {
+    border-color: var(--red);
+  }
+  #lead-box .lead-submit {
+    padding: 14px 22px;
+    background: var(--red);
+    border: none;
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  #lead-box .lead-submit:hover {
+    background: #c42a0f;
+  }
+
   @media (max-width: 480px) {
     .risk-grid { grid-template-columns: 1fr; }
     .verdict-grid { grid-template-columns: 1fr 1fr; }
@@ -547,6 +605,15 @@
   </div>
 </div>
 
+<div id="lead-box">
+  <h3>Get a personalized doctor review</h3>
+  <p>Enter your email to receive your results and expert recommendations.</p>
+  <div class="lead-row">
+    <input type="email" id="email" placeholder="Enter your email" autocomplete="email" />
+    <button type="button" class="lead-submit" onclick="submitLead()">Send Me My Results</button>
+  </div>
+</div>
+
 <script>
 // ===== HEALTH DATA =====
 const risks = [
@@ -655,6 +722,7 @@ function calcHealth() {
 
   document.getElementById('health-result').classList.add('show');
   document.getElementById('health-result').scrollIntoView({ behavior:'smooth', block:'nearest' });
+  showLeadBox();
 }
 
 // ===== MONEY DATA =====
@@ -725,6 +793,22 @@ function calcFreedom() {
 
   document.getElementById('freedom-result').classList.add('show');
   document.getElementById('freedom-result').scrollIntoView({ behavior:'smooth', block:'nearest' });
+  showLeadBox();
+}
+
+function showLeadBox() {
+  const box = document.getElementById('lead-box');
+  box.classList.add('lead-visible');
+}
+
+function submitLead() {
+  const email = document.getElementById('email').value.trim();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert('Please enter a valid email address.');
+    return;
+  }
+  alert('Saved: ' + email);
+  // later connect to backend
 }
 
 function getMsLabel(amt) {
