@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Two Calculators</title>
+<title>Rabbi Monechai — Health & Freedom | rabbimonechai.org</title>
+<meta name="description" content="Rabbi Monechai tools at rabbimonechai.org — health clock and financial freedom map.">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -25,6 +26,33 @@
     font-family: 'DM Mono', monospace;
     min-height: 100vh;
     overflow-x: hidden;
+  }
+
+  .site-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid #2a2a2a;
+    background: var(--dark);
+  }
+  .site-brand a {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.15rem;
+    letter-spacing: 0.18em;
+    color: var(--gold);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .site-brand a:hover {
+    color: var(--gold-light);
+  }
+  .site-brand span {
+    font-size: 0.58rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-right: 12px;
   }
 
   /* NAV */
@@ -485,6 +513,11 @@
 </head>
 <body>
 
+<header class="site-brand">
+  <span>Rabbi Monechai</span>
+  <a href="https://rabbimonechai.org">rabbimonechai.org</a>
+</header>
+
 <nav class="nav">
   <button class="nav-btn active-health" onclick="switchTab('health')" id="tab-health">⚕ Health Clock</button>
   <button class="nav-btn" onclick="switchTab('money')" id="tab-money">₪ Freedom Map</button>
@@ -493,9 +526,9 @@
 <!-- ===== HEALTH PANEL ===== -->
 <div id="health-panel" class="panel active">
   <div class="health-header">
-    <div class="eyebrow">Clinical Risk Calculator</div>
+    <div class="eyebrow">Health Clock — rabbimonechai.org</div>
     <h1>YOUR BODY<br>KEEPS <span>SCORE</span></h1>
-    <p>Select your current habits and health conditions. We calculate how many years you have to reverse course before outcomes become irreversible.</p>
+    <p>Select your current habits and health conditions. See how many years you have to reverse course before outcomes become irreversible.</p>
   </div>
 
   <div class="section-label">Current Conditions / Risk Factors</div>
@@ -517,7 +550,7 @@
     <input type="range" min="1" max="10" value="6" id="stress-slider" oninput="document.getElementById('stress-val').textContent=this.value+' / 10'">
   </div>
 
-  <button class="calc-btn" onclick="calcHealth()">CALCULATE MY HEALTH CLOCK →</button>
+  <button class="calc-btn" onclick="calcHealth()">SHOW MY HEALTH CLOCK →</button>
 
   <div class="result-block" id="health-result">
     <div class="verdict-bar" id="verdict-bar"></div>
@@ -543,7 +576,7 @@
 <!-- ===== MONEY PANEL ===== -->
 <div id="money-panel" class="panel">
   <div class="money-header">
-    <div class="eyebrow">Compound Interest Engine</div>
+    <div class="eyebrow">Freedom Map — rabbimonechai.org</div>
     <h1>From Salary<br>to <strong>Freedom</strong></h1>
     <p>Map your income, savings rate, and return assumptions to the exact date your money works harder than you do.</p>
   </div>
