@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Two Calculators</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --red: #E63312;
+    --red-dim: #7a1a09;
+    --gold: #C9A84C;
+    --gold-light: #f0d080;
+    --cream: #F5F0E8;
+    --dark: #0D0D0D;
+    --ink: #1a1a1a;
+    --muted: #888;
+  }
+
+  body {
+    background: var(--dark);
+    color: var(--cream);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  .nav {
+    display: flex;
+    border-bottom: 1px solid #333;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--dark);
+  }
+  .nav-btn {
+    flex: 1;
+    padding: 18px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-bottom: 3px solid transparent;
+  }
+  .nav-btn.active-health { color: var(--red); border-bottom-color: var(--red); }
+  .nav-btn.active-money { color: var(--gold); border-bottom-color: var(--gold); }
+
+  /* PANELS */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ===== HEALTH CALCULATOR ===== */
+  #health-panel {
+    padding: 40px 24px;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .health-header {
+    margin-bottom: 36px;
+  }
+  .health-header .eyebrow {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .health-header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.4rem, 8vw, 4rem);
+    line-height: 0.95;
+    color: var(--cream);
+  }
+  .health-header h1 span { color: var(--red); }
+  .health-header p {
+    margin-top: 12px;
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 500px;
+  }
+
+  .section-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #222;
+  }
+
+  /* RISK GRID */
+  .risk-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .risk-item {
+    border: 1px solid #2a2a2a;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .risk-item:hover { border-color: #444; }
+  .risk-item.selected { border-color: var(--red); background: rgba(230,51,18,0.07); }
+  .risk-item label {
+    font-size: 0.72rem;
+    color: var(--cream);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .risk-item input[type=checkbox] { accent-color: var(--red); width: 14px; height: 14px; }
+  .risk-name { font-weight: 500; }
+  .risk-tag {
+    font-size: 0.58rem;
+    color: var(--muted);
+    display: block;
+    margin-top: 3px;
+    padding-left: 24px;
+  }
+
+  /* SLIDERS */
+  .slider-group { margin-bottom: 24px; }
+  .slider-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+  .slider-name { font-size: 0.72rem; color: var(--cream); }
+  .slider-val { font-size: 0.85rem; color: var(--red); font-weight: 500; }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 2px;
+    background: #333;
+    outline: none;
+    margin-bottom: 14px;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--red);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  /* CALC BUTTON */
+  .calc-btn {
+    width: 100%;
+    padding: 18px;
+    background: var(--red);
+    border: none;
+    color: white;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-bottom: 32px;
+  }
+  .calc-btn:hover { background: #c42a0f; }
+  .calc-btn.gold-btn { background: var(--gold); color: var(--dark); }
+  .calc-btn.gold-btn:hover { background: var(--gold-light); }
+
+  /* RESULT BLOCK */
+  .result-block {
+    display: none;
+    border: 1px solid #2a2a2a;
+    padding: 28px;
+    margin-top: 8px;
+  }
+  .result-block.show { display: block; }
+
+  .verdict-bar {
+    height: 6px;
+    border-radius: 3px;
+    margin-bottom: 24px;
+    transition: width 1s ease;
+  }
+
+  .verdict-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .verdict-stat {
+    text-align: center;
+  }
+  .verdict-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.4rem;
+    line-height: 1;
+  }
+  .verdict-unit {
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .prognosis-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  .action-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .action-list li {
+    font-size: 0.72rem;
+    color: var(--cream);
+    line-height: 1.6;
+    padding-left: 16px;
+    border-left: 2px solid #333;
+  }
+  .action-list li.priority { border-left-color: var(--red); }
+  .action-priority { color: var(--red); font-weight: 500; }
+
+  /* ===== MONEY CALCULATOR ===== */
+  #money-panel {
+    padding: 40px 24px;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .money-header {
+    margin-bottom: 36px;
+  }
+  .money-header .eyebrow {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .money-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 7vw, 3.4rem);
+    line-height: 1.1;
+    font-style: italic;
+    color: var(--cream);
+  }
+  .money-header h1 strong {
+    color: var(--gold);
+    font-style: normal;
+  }
+  .money-header p {
+    margin-top: 12px;
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 500px;
+  }
+
+  .money-section-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #2a2200;
+  }
+
+  .money-input-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .money-field {
+    position: relative;
+  }
+  .money-field label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 8px;
+  }
+  .money-field .prefix {
+    position: absolute;
+    left: 12px;
+    top: 34px;
+    color: var(--gold);
+    font-size: 0.85rem;
+  }
+  .money-field input {
+    width: 100%;
+    background: #111;
+    border: 1px solid #2a2a2a;
+    color: var(--cream);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+    padding: 12px 12px 12px 28px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .money-field input:focus { border-color: var(--gold); }
+  .money-field input.no-prefix { padding-left: 12px; }
+
+  /* MONEY SLIDER */
+  input[type=range].gold-range::-webkit-slider-thumb {
+    background: var(--gold);
+  }
+  input[type=range].gold-range { margin-bottom: 14px; }
+
+  .gold-val { color: var(--gold) !important; }
+
+  /* FREEDOM RESULT */
+  .freedom-result {
+    display: none;
+    margin-top: 8px;
+  }
+  .freedom-result.show { display: block; }
+
+  .freedom-headline {
+    border: 1px solid #2a2200;
+    background: rgba(201,168,76,0.05);
+    padding: 28px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .freedom-years {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5rem;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .freedom-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .freedom-sub {
+    font-size: 0.75rem;
+    color: var(--cream);
+    margin-top: 10px;
+  }
+
+  .milestone-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .milestone-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 100px;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid #1a1a00;
+    font-size: 0.72rem;
+  }
+  .milestone-year { color: var(--gold); font-family: 'Space Mono', monospace; font-weight: 700; }
+  .milestone-desc { color: var(--muted); }
+  .milestone-amount { color: var(--cream); text-align: right; font-family: 'Space Mono', monospace; }
+
+  .freedom-bar-wrap {
+    margin-bottom: 24px;
+  }
+  .freedom-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.62rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .freedom-bar-track {
+    height: 4px;
+    background: #222;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .freedom-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 100%);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 1.2s ease;
+  }
+
+  .rabbi-note {
+    border-left: 3px solid var(--gold);
+    padding: 14px 16px;
+    background: rgba(201,168,76,0.04);
+    font-size: 0.7rem;
+    color: var(--muted);
+    line-height: 1.7;
+    font-style: italic;
+  }
+  .rabbi-note strong { color: var(--gold); font-style: normal; }
+
+  @media (max-width: 480px) {
+    .risk-grid { grid-template-columns: 1fr; }
+    .verdict-grid { grid-template-columns: 1fr 1fr; }
+    .money-input-group { grid-template-columns: 1fr; }
+    .milestone-row { grid-template-columns: 50px 1fr 90px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <button class="nav-btn active-health" onclick="switchTab('health')" id="tab-health">⚕ Health Clock</button>
+  <button class="nav-btn" onclick="switchTab('money')" id="tab-money">₪ Freedom Map</button>
+</nav>
+
+<!-- ===== HEALTH PANEL ===== -->
+<div id="health-panel" class="panel active">
+  <div class="health-header">
+    <div class="eyebrow">Clinical Risk Calculator</div>
+    <h1>YOUR BODY<br>KEEPS <span>SCORE</span></h1>
+    <p>Select your current habits and health conditions. We calculate how many years you have to reverse course before outcomes become irreversible.</p>
+  </div>
+
+  <div class="section-label">Current Conditions / Risk Factors</div>
+  <div class="risk-grid" id="risk-grid">
+    <!-- filled by JS -->
+  </div>
+
+  <div class="section-label">Your Profile</div>
+  <div class="slider-group">
+    <div class="slider-row"><span class="slider-name">Age</span><span class="slider-val" id="age-val">38 yrs</span></div>
+    <input type="range" min="18" max="80" value="38" id="age-slider" oninput="document.getElementById('age-val').textContent=this.value+' yrs'">
+    <div class="slider-row"><span class="slider-name">Diet Quality</span><span class="slider-val" id="diet-val">5 / 10</span></div>
+    <input type="range" min="1" max="10" value="5" id="diet-slider" oninput="document.getElementById('diet-val').textContent=this.value+' / 10'">
+    <div class="slider-row"><span class="slider-name">Exercise (days/week)</span><span class="slider-val" id="ex-val">2 days</span></div>
+    <input type="range" min="0" max="7" value="2" id="ex-slider" oninput="document.getElementById('ex-val').textContent=this.value+' days'">
+    <div class="slider-row"><span class="slider-name">Sleep (hrs/night)</span><span class="slider-val" id="sleep-val">6 hrs</span></div>
+    <input type="range" min="3" max="10" value="6" id="sleep-slider" oninput="document.getElementById('sleep-val').textContent=this.value+' hrs'">
+    <div class="slider-row"><span class="slider-name">Stress Level</span><span class="slider-val" id="stress-val">6 / 10</span></div>
+    <input type="range" min="1" max="10" value="6" id="stress-slider" oninput="document.getElementById('stress-val').textContent=this.value+' / 10'">
+  </div>
+
+  <button class="calc-btn" onclick="calcHealth()">CALCULATE MY HEALTH CLOCK →</button>
+
+  <div class="result-block" id="health-result">
+    <div class="verdict-bar" id="verdict-bar"></div>
+    <div class="verdict-grid">
+      <div class="verdict-stat">
+        <div class="verdict-num" id="res-window" style="color:var(--red)">—</div>
+        <div class="verdict-unit">Years to Act</div>
+      </div>
+      <div class="verdict-stat">
+        <div class="verdict-num" id="res-risk" style="color:var(--cream)">—</div>
+        <div class="verdict-unit">Risk Score</div>
+      </div>
+      <div class="verdict-stat">
+        <div class="verdict-num" id="res-impact" style="color:var(--muted)">—</div>
+        <div class="verdict-unit">Yrs Recoverable</div>
+      </div>
+    </div>
+    <div class="prognosis-title" id="prognosis-title">—</div>
+    <ul class="action-list" id="action-list"></ul>
+  </div>
+</div>
+
+<!-- ===== MONEY PANEL ===== -->
+<div id="money-panel" class="panel">
+  <div class="money-header">
+    <div class="eyebrow">Compound Interest Engine</div>
+    <h1>From Salary<br>to <strong>Freedom</strong></h1>
+    <p>Map your income, savings rate, and return assumptions to the exact date your money works harder than you do.</p>
+  </div>
+
+  <div class="money-section-label">Your Numbers</div>
+  <div class="money-input-group">
+    <div class="money-field">
+      <label>Annual Salary</label>
+      <span class="prefix">$</span>
+      <input type="number" id="salary" value="85000" min="0">
+    </div>
+    <div class="money-field">
+      <label>Current Savings</label>
+      <span class="prefix">$</span>
+      <input type="number" id="savings" value="12000" min="0">
+    </div>
+    <div class="money-field">
+      <label>Monthly Expenses</label>
+      <span class="prefix">$</span>
+      <input type="number" id="expenses" value="3200" min="0">
+    </div>
+    <div class="money-field">
+      <label>Target Freedom Number</label>
+      <span class="prefix">$</span>
+      <input type="number" id="target" value="1000000" min="0">
+    </div>
+  </div>
+
+  <div class="money-section-label">Assumptions</div>
+  <div class="slider-group">
+    <div class="slider-row"><span class="slider-name">Savings Rate</span><span class="slider-val gold-val" id="srate-val">20%</span></div>
+    <input type="range" class="gold-range" min="1" max="80" value="20" id="srate-slider" oninput="document.getElementById('srate-val').textContent=this.value+'%'">
+    <div class="slider-row"><span class="slider-name">Annual Return</span><span class="slider-val gold-val" id="return-val">8%</span></div>
+    <input type="range" class="gold-range" min="1" max="20" value="8" id="return-slider" oninput="document.getElementById('return-val').textContent=this.value+'%'">
+    <div class="slider-row"><span class="slider-name">Annual Salary Growth</span><span class="slider-val gold-val" id="growth-val">3%</span></div>
+    <input type="range" class="gold-range" min="0" max="15" value="3" id="growth-slider" oninput="document.getElementById('growth-val').textContent=this.value+'%'">
+  </div>
+
+  <button class="calc-btn gold-btn" onclick="calcFreedom()">MAP MY PATH TO FREEDOM →</button>
+
+  <div class="freedom-result" id="freedom-result">
+    <div class="freedom-headline">
+      <div class="freedom-years" id="freedom-years">—</div>
+      <div class="freedom-label">Years to Financial Freedom</div>
+      <div class="freedom-sub" id="freedom-sub">—</div>
+    </div>
+
+    <div class="freedom-bar-wrap">
+      <div class="freedom-bar-label">
+        <span>Today</span><span id="freedom-bar-end">Freedom</span>
+      </div>
+      <div class="freedom-bar-track"><div class="freedom-bar-fill" id="freedom-bar"></div></div>
+    </div>
+
+    <div class="money-section-label">Milestone Map</div>
+    <div class="milestone-grid" id="milestone-grid"></div>
+
+    <div class="rabbi-note" id="rabbi-note"></div>
+  </div>
+</div>
+
+<script>
+// ===== HEALTH DATA =====
+const risks = [
+  { id:'htn',   name:'Hypertension',        tag:'High blood pressure',         years:8,  reversible:true  },
+  { id:'t2d',   name:'Type 2 Diabetes',     tag:'Elevated blood glucose',      years:10, reversible:true  },
+  { id:'obese', name:'Obesity (BMI>30)',     tag:'Excess body weight',          years:6,  reversible:true  },
+  { id:'smoke', name:'Smoking',             tag:'Current smoker',              years:5,  reversible:true  },
+  { id:'etoh',  name:'Alcohol Excess',      tag:'>14 drinks/week',             years:7,  reversible:true  },
+  { id:'sleep', name:'Sleep Apnea',         tag:'Untreated OSA',               years:9,  reversible:true  },
+  { id:'hcl',   name:'High Cholesterol',    tag:'LDL >160 mg/dL',             years:12, reversible:true  },
+  { id:'sed',   name:'Sedentary Lifestyle', tag:'No regular exercise',         years:7,  reversible:true  },
+  { id:'proc',  name:'Processed Food Diet', tag:'>50% ultra-processed',        years:5,  reversible:true  },
+  { id:'stress',name:'Chronic Stress',      tag:'Persistent high cortisol',    years:6,  reversible:true  },
+  { id:'cad',   name:'Heart Disease (CAD)', tag:'Established cardiac disease', years:3,  reversible:false },
+  { id:'ckd',   name:'Kidney Disease',      tag:'CKD Stage 3+',                years:4,  reversible:false },
+];
+
+const riskGrid = document.getElementById('risk-grid');
+risks.forEach(r => {
+  riskGrid.innerHTML += `
+    <div class="risk-item" id="wrap-${r.id}" onclick="toggleRisk('${r.id}')">
+      <label>
+        <input type="checkbox" id="chk-${r.id}" onchange="toggleRisk('${r.id}')">
+        <span>
+          <span class="risk-name">${r.name}</span>
+          <span class="risk-tag">${r.tag}</span>
+        </span>
+      </label>
+    </div>`;
+});
+
+function toggleRisk(id) {
+  const chk = document.getElementById('chk-'+id);
+  const wrap = document.getElementById('wrap-'+id);
+  // If clicked on div (not checkbox directly), toggle checkbox
+  chk.checked = !chk.checked;
+  wrap.classList.toggle('selected', chk.checked);
+}
+// Fix: clicking checkbox shouldn't double-toggle
+document.querySelectorAll('.risk-item input[type=checkbox]').forEach(chk => {
+  chk.addEventListener('click', e => e.stopPropagation());
+  chk.addEventListener('change', () => {
+    document.getElementById('wrap-'+chk.id.replace('chk-','')).classList.toggle('selected', chk.checked);
+  });
+});
+
+function calcHealth() {
+  const age = +document.getElementById('age-slider').value;
+  const diet = +document.getElementById('diet-slider').value;
+  const ex = +document.getElementById('ex-slider').value;
+  const sleep = +document.getElementById('sleep-slider').value;
+  const stress = +document.getElementById('stress-slider').value;
+
+  // Lifestyle score 0-10 (10=perfect)
+  const lifestyle = ((diet-1)/9)*3 + (ex/7)*3 + ((sleep-3)/7)*2 + ((10-stress)/9)*2;
+  // lifestyle 0-10
+
+  // Selected conditions
+  const selected = risks.filter(r => document.getElementById('chk-'+r.id).checked);
+  const condScore = selected.reduce((s,r) => s + (10 - (r.reversible ? 0:3)), 0);
+
+  // Risk score 0-100
+  let riskScore = Math.min(100, Math.round(condScore * 3.5 + (10 - lifestyle) * 4 + (age > 50 ? 15 : age > 40 ? 8 : 0)));
+
+  // Window to act (years before conditions become harder to reverse)
+  let baseWindow = 15;
+  baseWindow -= (riskScore / 10);
+  baseWindow -= selected.filter(r => !r.reversible).length * 2;
+  baseWindow += (lifestyle / 2);
+  baseWindow = Math.max(1, Math.min(20, Math.round(baseWindow)));
+
+  // Recoverable years of life
+  const recoverable = Math.round((lifestyle / 10) * 8 + (selected.length === 0 ? 5 : 0));
+
+  // Color
+  let color = riskScore < 30 ? '#4caf85' : riskScore < 60 ? '#E8A020' : '#E63312';
+
+  document.getElementById('verdict-bar').style.background = color;
+  document.getElementById('verdict-bar').style.width = '100%';
+  document.getElementById('res-window').textContent = baseWindow;
+  document.getElementById('res-window').style.color = color;
+  document.getElementById('res-risk').textContent = riskScore;
+  document.getElementById('res-impact').textContent = '+'+recoverable;
+
+  // Prognosis
+  let title = riskScore < 30 ? 'LOW RISK — MAINTAIN YOUR EDGE' :
+               riskScore < 55 ? 'MODERATE RISK — COURSE CORRECT NOW' :
+               riskScore < 75 ? 'HIGH RISK — URGENT INTERVENTION NEEDED' : 'CRITICAL — IMMEDIATE MEDICAL ACTION';
+  document.getElementById('prognosis-title').textContent = title;
+  document.getElementById('prognosis-title').style.color = color;
+
+  // Actions
+  const actions = [];
+  if (diet < 6) actions.push({ p:true, txt:'<span class="action-priority">Priority:</span> Shift to 80% whole foods. Each processed meal accelerates systemic inflammation.' });
+  if (ex < 3) actions.push({ p:true, txt:'<span class="action-priority">Priority:</span> 150 min/week moderate cardio halves cardiovascular event risk.' });
+  if (sleep < 7) actions.push({ p:false, txt:'Optimize sleep to 7-8 hrs. Sleep debt raises cortisol, blood sugar, and cardiovascular risk.' });
+  if (stress > 6) actions.push({ p:false, txt:'Chronic high cortisol drives insulin resistance. Daily decompression protocol is non-negotiable.' });
+  selected.forEach(r => {
+    if (r.reversible) actions.push({ p:false, txt:`${r.name}: Still reversible within your window. Medical management + lifestyle changes can normalize markers.` });
+    else actions.push({ p:true, txt:`<span class="action-priority">Urgent:</span> ${r.name} is established — slow progression now or outcomes accelerate.` });
+  });
+  if (actions.length === 0) actions.push({ p:false, txt:'Your profile looks strong. Focus on maintaining consistency — the longest health gains come from compounding small daily habits.' });
+
+  const list = document.getElementById('action-list');
+  list.innerHTML = actions.map(a => `<li class="${a.p?'priority':''}">${a.txt}</li>`).join('');
+
+  document.getElementById('health-result').classList.add('show');
+  document.getElementById('health-result').scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+// ===== MONEY DATA =====
+function calcFreedom() {
+  const salary = +document.getElementById('salary').value || 0;
+  const currentSavings = +document.getElementById('savings').value || 0;
+  const expenses = +document.getElementById('expenses').value || 0;
+  const target = +document.getElementById('target').value || 1000000;
+  const savingsRate = +document.getElementById('srate-slider').value / 100;
+  const annualReturn = +document.getElementById('return-slider').value / 100;
+  const salaryGrowth = +document.getElementById('growth-slider').value / 100;
+
+  const annualContrib = salary * savingsRate;
+  let portfolio = currentSavings;
+  let currentSalary = salary;
+  let yearsToFreedom = 0;
+  const milestones = [];
+  const targets = [10000, 25000, 50000, 100000, 250000, 500000, target];
+  const msReached = new Set();
+
+  for (let y = 1; y <= 60; y++) {
+    portfolio = portfolio * (1 + annualReturn) + currentSalary * savingsRate;
+    currentSalary *= (1 + salaryGrowth);
+
+    targets.forEach(t => {
+      if (!msReached.has(t) && portfolio >= t) {
+        msReached.add(t);
+        milestones.push({ year: y, amount: t, portfolio: Math.round(portfolio) });
+      }
+    });
+
+    if (portfolio >= target && yearsToFreedom === 0) {
+      yearsToFreedom = y;
+    }
+  }
+
+  if (yearsToFreedom === 0) yearsToFreedom = 60;
+
+  const today = new Date().getFullYear();
+  const freedomYear = today + yearsToFreedom;
+  const monthly4pct = Math.round((target * 0.04) / 12);
+
+  document.getElementById('freedom-years').textContent = yearsToFreedom;
+  document.getElementById('freedom-sub').textContent = `Freedom Year: ${freedomYear}  ·  Monthly income at 4% rule: $${monthly4pct.toLocaleString()}`;
+  document.getElementById('freedom-bar-end').textContent = `${freedomYear}`;
+
+  // Bar: show progress already made
+  const pct = Math.min(95, Math.round((currentSavings / target) * 100));
+  setTimeout(() => { document.getElementById('freedom-bar').style.width = Math.max(5, pct) + '%'; }, 100);
+
+  // Milestones
+  const msGrid = document.getElementById('milestone-grid');
+  const showMs = milestones.filter(m => m.amount <= target).slice(0, 6);
+  msGrid.innerHTML = showMs.map(m => `
+    <div class="milestone-row">
+      <span class="milestone-year">Yr ${m.year}</span>
+      <span class="milestone-desc">${getMsLabel(m.amount)}</span>
+      <span class="milestone-amount">$${m.amount >= 1000000 ? (m.amount/1000000).toFixed(1)+'M' : (m.amount/1000).toFixed(0)+'K'}</span>
+    </div>`).join('');
+
+  // Rabbi note
+  const notes = [
+    `<strong>The Rabbi says:</strong> The first $${(Math.min(target,100000)/1000).toFixed(0)}K is the hardest. After that, compound interest works for you more than you work for your salary.`,
+    `<strong>Reb Avram teaches:</strong> A man who saves 20% of $85K will retire richer than a man who saves 5% of $200K. The rate matters more than the salary.`,
+    `<strong>Money Chai wisdom:</strong> Your freedom number isn't a retirement — it's an option. You keep working because you want to, not because you must.`,
+  ];
+  document.getElementById('rabbi-note').innerHTML = notes[yearsToFreedom % 3];
+
+  document.getElementById('freedom-result').classList.add('show');
+  document.getElementById('freedom-result').scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function getMsLabel(amt) {
+  if (amt <= 10000) return 'Emergency fund complete';
+  if (amt <= 25000) return 'First real cushion';
+  if (amt <= 50000) return 'Breathing room unlocked';
+  if (amt <= 100000) return 'Six-figure milestone';
+  if (amt <= 250000) return 'Quarter-million mark';
+  if (amt <= 500000) return 'Half-million — halfway home';
+  return 'Freedom number reached';
+}
+
+function switchTab(tab) {
+  document.getElementById('health-panel').classList.toggle('active', tab==='health');
+  document.getElementById('money-panel').classList.toggle('active', tab==='money');
+  document.getElementById('tab-health').className = 'nav-btn' + (tab==='health' ? ' active-health' : '');
+  document.getElementById('tab-money').className = 'nav-btn' + (tab==='money' ? ' active-money' : '');
+}
+</script>
+</body>
+</html>
