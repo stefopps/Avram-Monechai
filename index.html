@@ -583,29 +583,85 @@
     #lead-box {
       display: none;
       max-width: 760px;
-      margin: 24px auto 40px;
-      padding: 28px;
-      border: 1px solid #2a2a2a;
-      background: rgba(255, 255, 255, 0.03);
+      margin: 32px auto 48px;
+      padding: 0;
+      border: 2px solid var(--red);
+      border-radius: 2px;
+      background: linear-gradient(165deg, rgba(230, 51, 18, 0.12) 0%, rgba(13, 13, 13, 0.98) 45%, #0d0d0d 100%);
+      box-shadow:
+        0 0 0 1px rgba(230, 51, 18, 0.35),
+        0 24px 48px rgba(0, 0, 0, 0.55),
+        0 0 80px rgba(230, 51, 18, 0.08);
+      scroll-margin-top: 100px;
     }
 
     #lead-box.lead-visible {
       display: block;
+      animation: lead-pulse-in 0.55s ease-out;
     }
 
-    #lead-box h3 {
+    @keyframes lead-pulse-in {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+        box-shadow: 0 0 0 0 rgba(230, 51, 18, 0);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        box-shadow:
+          0 0 0 1px rgba(230, 51, 18, 0.35),
+          0 24px 48px rgba(0, 0, 0, 0.55),
+          0 0 80px rgba(230, 51, 18, 0.08);
+      }
+    }
+
+    #lead-box .lead-inner {
+      padding: 36px 28px 32px;
+      border-left: 4px solid var(--red);
+    }
+
+    #lead-box .lead-badge {
+      display: inline-block;
+      font-size: 0.58rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--red);
+      font-weight: 600;
+      margin-bottom: 14px;
+      padding: 6px 12px;
+      background: rgba(230, 51, 18, 0.15);
+      border: 1px solid rgba(230, 51, 18, 0.45);
+    }
+
+    #lead-box h3.lead-title {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.35rem;
-      letter-spacing: 0.08em;
+      font-size: clamp(1.65rem, 5vw, 2.35rem);
+      letter-spacing: 0.06em;
+      line-height: 1.05;
       color: var(--cream);
-      margin-bottom: 10px;
+      margin-bottom: 16px;
+      max-width: 22ch;
     }
 
-    #lead-box p {
-      font-size: 0.72rem;
-      color: var(--muted);
-      line-height: 1.6;
-      margin-bottom: 16px;
+    #lead-box h3.lead-title .lead-accent {
+      color: var(--red);
+    }
+
+    #lead-box p.lead-hook {
+      font-size: clamp(0.78rem, 2.2vw, 0.88rem);
+      color: #c9c5bd;
+      line-height: 1.75;
+      margin-bottom: 22px;
+      max-width: 38rem;
+    }
+
+    #lead-box p.lead-cta-line {
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 14px;
     }
 
     #lead-box .lead-form-row {
@@ -646,12 +702,12 @@
     #lead-box input[type=email] {
       flex: 1;
       min-width: 200px;
-      background: #111;
-      border: 1px solid #333;
+      background: #0a0a0a;
+      border: 2px solid #3a3a3a;
       color: var(--cream);
       font-family: 'DM Mono', monospace;
-      font-size: 0.8rem;
-      padding: 14px 16px;
+      font-size: 0.9rem;
+      padding: 16px 18px;
       outline: none;
     }
 
@@ -665,20 +721,22 @@
 
     #lead-box .lead-submit,
     #lead-box form.lead-form button[type=submit] {
-      padding: 14px 22px;
+      padding: 16px 26px;
       background: var(--red);
       border: none;
       color: #fff;
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1rem;
-      letter-spacing: 0.12em;
+      font-size: 1.15rem;
+      letter-spacing: 0.14em;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 4px 20px rgba(230, 51, 18, 0.35);
     }
 
-    #lead-box .lead-submit:hover,
-    #lead-box form.lead-form button[type=submit]:hover {
+    #lead-box .lead-submit:hover:not(:disabled),
+    #lead-box form.lead-form button[type=submit]:hover:not(:disabled) {
       background: #c42a0f;
+      transform: translateY(-1px);
     }
 
     #lead-box form.lead-form button[type=submit]:disabled {
@@ -701,6 +759,14 @@
 
       .milestone-row {
         grid-template-columns: 50px 1fr 90px;
+      }
+
+      #lead-box .lead-inner {
+        padding: 28px 20px 24px;
+      }
+
+      #lead-box h3.lead-title {
+        max-width: none;
       }
     }
   </style>
@@ -854,11 +920,14 @@
   </div>
 
   <div id="lead-box">
-    <h3>Get a personalized doctor review</h3>
-    <p>Enter your email to receive your results and expert recommendations.</p>
-    <div class="lead-fs-msg" data-fs-success></div>
-    <div class="lead-fs-msg" data-fs-error></div>
-    <form id="lead-form" class="lead-form">
+    <div class="lead-inner">
+      <div class="lead-badge">Clinical intelligence</div>
+      <h3 class="lead-title">Personalised insight from the <span class="lead-accent">world’s best doctors</span>—on your data, your food, and how you move</h3>
+      <p class="lead-hook">Advanced cognitive intelligence, trained on how leading physicians read health signals, connects what you just entered to <strong>nutrition and movement</strong>—so recommendations fit you, not a generic checklist.</p>
+      <p class="lead-cta-line">Send my personalised readout</p>
+      <div class="lead-fs-msg" data-fs-success></div>
+      <div class="lead-fs-msg" data-fs-error></div>
+      <form id="lead-form" class="lead-form">
       <input type="hidden" name="_subject" value="Rabbi Monechai — calculator results request">
       <div class="lead-form-row">
         <input type="email" id="lead-email" name="email" placeholder="Enter your email" required
@@ -867,6 +936,7 @@
       </div>
       <span class="lead-field-error" data-fs-error="email"></span>
     </form>
+    </div>
   </div>
 
   <script>
@@ -1054,6 +1124,9 @@
     function showLeadBox() {
       const box = document.getElementById('lead-box');
       box.classList.add('lead-visible');
+      setTimeout(() => {
+        box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 400);
     }
 
     function getMsLabel(amt) {
